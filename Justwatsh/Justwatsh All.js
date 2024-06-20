@@ -20,9 +20,6 @@ const ztDomain = 'tokyo';
  * @param episode numéro de l'épisode
  * @returns {string} URL de recherche
  */
-
-
-
 function createLink(fileName, sType, year = 0, saison = 0, episode = 0) {
     //TODO mettre en place l'autoclick
     let url = `https://www.zone-telechargement.${ztDomain}/?`;
@@ -164,9 +161,8 @@ function contentPage() {
         return;
     }
 
-
-    var fileName;
-    var fileSaisonStr = "";
+    let fileName;
+    let fileSaisonStr = "";
 
     // Récupérer le titre du film
     if (document.querySelector('.title-block h1 a')) {
@@ -175,19 +171,18 @@ function contentPage() {
     } else
         fileName = document.querySelector('.title-block h1').textContent.trim().replace(/ +\(\d+\)$/, '');
 
-    var fileYear = document.querySelector('.title-block span').textContent.trim().replace(/[\(\)]/g, '');
+    let fileYear = document.querySelector('.title-block span').textContent.trim().replace(/[()]/g, '');
 
     // faire varier le type de recherhe
     // ##.subheading
-    var sType = 'films'; // filme par défau
+    let sType = 'films'; // filme par défau
     // verifier si c'est une series
-    var subheading = document.querySelector('.subheading');
     if (window.location.href.includes('/serie/')) {
         //console.log("Page de série détectée.");
         sType = 'series';
         // Vérifier si la série est un manga
-        var paysDeProduction = document.querySelectorAll('.detail-infos__value');
-        for (var i = 0; i < paysDeProduction.length; i++) {
+        const paysDeProduction = document.querySelectorAll('.detail-infos__value');
+        for (let i = 0; i < paysDeProduction.length; i++) {
             if (paysDeProduction[i].textContent.includes("Japon", "Animation") || paysDeProduction[i].textContent.includes("Animation")) {
                 //console.log("La série semble être un anime. Traiter comme un manga.");
                 sType = 'mangas';
@@ -200,11 +195,11 @@ function contentPage() {
     console.log("Nom du fichier : " + fileName + "\n\tType de recherche : " + sType + "\n\tAnnée de sortie : " + fileYear + "\n\tSaison : " + fileSaisonStr);
 
     // Ajouter l'icône et le texte du bouton
-    var button = ceatCardButton();
-    var btntitle = " " + fileName;
+    let button = ceatCardButton();
+    let btntitle = " " + fileName;
     button.appendChild(document.createTextNode(btntitle + fileSaisonStr));
 
-    var saison = 0;
+    let saison = 0;
     const regexRom = /\b([IVXLCDM]+)\b/g;
     if (fileSaisonStr.match(regexRom)) {
         const list = fileSaisonStr.match(regexRom);
@@ -226,21 +221,21 @@ function contentPage() {
 
 
     // Créer un lien
-    var link = document.createElement('a');
+    let link = document.createElement('a');
     link.href = createLink(fileName, sType, fileYear, saison); // Remplacer avec l'URL souhaitée
     link.target = '_blank'; // Ouvrir le lien dans un nouvel onglet
     link.classList.add('zt_tutton');
     link.appendChild(button);
 
     // Trouver l'élément sous lequel nous allons insérer le bouton
-    var insertionPoint = document.querySelector('.buybox__heading');
+    const insertionPoint = document.querySelector('.buybox__heading');
     if (!insertionPoint) {
         console.log("Impossible de trouver l'endroit où insérer le bouton de téléchargement.");
         return;
     }
 
     //verifier si le bouton existe et que le lien est difeérent
-    var linkExist = document.querySelector('.zt_tutton');
+    const linkExist = document.querySelector('.zt_tutton');
     if (linkExist && linkExist.href !== link.href) {
         // Supprimer le bouton existant
         //linkExist.remove();
@@ -252,7 +247,11 @@ function contentPage() {
 
 }
 
-// Fonction pour convertir un chiffre romain en nombre entier
+/**
+ * Convertir un nombre romain en nombre arabe
+ * @param roman Numéro romain à convertir
+ * @returns {string} Numéro arabe
+ */
 function convertRomanToNumber(roman) {
     // Tableau pour stocker les valeurs des chiffres romains
     const romanNumerals = {

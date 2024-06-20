@@ -10,7 +10,7 @@
 // ==/UserScript==
 
 function clickButton() {
-
+    console.log("clickButton fonction");
     const subButton = document.getElementById("subButton")
     if (subButton === null) {
         clickLink();
@@ -27,16 +27,20 @@ function clickButton() {
 }
 
 function clickLink() {
-    const links = document.querySelectorAll('.postinfo a[rel="external nofollow"]');
+//  récupaire la balise a qui a comptenue dans la balise div qui a la class col-md-12 urls text-center
+    const links = document.querySelectorAll(".col-md-12.urls.text-center a");
     if (links.length > 0) {
         console.log("clickLink");
         links[0].click();
+        //fermer la page apres 2s
+        setTimeout(function() {
+            window.close();
+        }, 3000);
         throw new Error("Stop script");
     }else {
-        console.log("clickLink setTimeout");
+        console.log("clickLink setTimeout" + links.toString());
         setTimeout(clickLink, 200);
     }
-
 }
 
 
