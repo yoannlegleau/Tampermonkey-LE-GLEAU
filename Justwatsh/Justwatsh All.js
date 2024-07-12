@@ -11,6 +11,12 @@
 
 const ztDomain = 'tokyo';
 
+const trueSeries = [
+    "Les Simpson",
+    "Star Wars : The Acolyte",
+    "La Chronique des Bridgerton"
+];
+
 /**
  * Créer un lien vers le site Zone Téléchargement
  * @param fileName Nom du fichier
@@ -110,7 +116,13 @@ function seriePage() {
 
             // Créer un lien
             const link = document.createElement('a');
-            link.href = createLink(fileName, 'mangas', 0, season, episode); // Remplacer avec l'URL souhaitée
+
+            let defaultType = 'mangas';
+            if (trueSeries.includes(fileName)) {
+                defaultType = 'series';
+            }
+
+            link.href = createLink(fileName, defaultType, 0, season, episode); // Remplacer avec l'URL souhaitée
             link.target = '_blank'; // Ouvrir le lien dans un nouvel onglet
             link.classList.add('zt_tutton');
             link.appendChild(ceatCardButton());
