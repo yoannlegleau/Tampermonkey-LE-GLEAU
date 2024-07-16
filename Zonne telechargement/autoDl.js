@@ -4,10 +4,12 @@
 // @version      2024-03-07
 // @description  try to take over the world!
 // @author       You
-// @match        *://www.zone-telechargement.tokyo/*
+// @match        *://www.zone-telechargement.ing/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=zone-telechargement.nl
 // @grant        none
 // ==/UserScript==
+
+const DL_WEBSITE = "1fichier";
 
 const qualitesPreference = [
     "(VOSTFR)",
@@ -240,7 +242,7 @@ function betterDetail() {
     const searchType = params.get('p');
     console.log("searchType: " + searchType);
 
-    const links = document.querySelectorAll('.postinfo a[rel="external nofollow"]');
+    const links = getLinksAfterTestDiv();
     const filteredLinks = [];
 
     links.forEach(link => {
@@ -262,6 +264,27 @@ function betterDetail() {
         console.log("Lien du meilleur résultat :", filteredLinks[0]);
 
     }
+}
+
+function getLinksAfterTestDiv() {
+    // Sélectionner tous les éléments <div> contenant le texte "test"
+    let links = [];
+    let specificDiv = Array.from(document.querySelectorAll('div[style="font-weight: bold; color: rgb(0, 0, 0); --darkreader-inline-color: #f4f2ee;"][data-darkreader-inline-color=""]'))
+        .find(div => div.textContent.includes(DL_WEBSITE));
+
+    console.log("Div spécifique trouvé : ", specificDiv);
+    let sibling = specificDiv.parentElement.nextElementSibling;
+            while (sibling) {
+                console.log("Element suivant : ", sibling);
+                if (sibling.tagName === 'B') {
+                    // Récupérer tous les <a> à l'intérieur de cet <b>
+                    let aTags = sibling.querySelectorAll('a');
+                    aTags.forEach(a => links.push(a));
+                }
+                sibling = sibling.nextElementSibling;
+            }
+
+    return links;
 }
 
 (function() {
