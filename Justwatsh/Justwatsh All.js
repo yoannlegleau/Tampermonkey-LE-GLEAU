@@ -13,8 +13,15 @@ const ztDomain = 'tokyo';
 
 const trueSeries = [
     "Les Simpson",
+    "Star Wars Rebels",
     "Star Wars : The Acolyte",
-    "La Chronique des Bridgerton"
+    "Star Wars : The Bad Batch",
+    "Star Wars : The Clone Wars",
+    "Star Wars : Clone Wars",
+    "The Last of Us",
+    "The Walking Dead",
+    "Le Seigneur des anneaux : Les Anneaux de pouvoir",
+    "Resident Alien"
 ];
 
 /**
