@@ -6,6 +6,7 @@
 // @author       You
 // @include      *://*.zone-telechargement.*/*
 // @include      *://zone-telechargement.*/*
+// @match        https://zone-telechargement.*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=zone-telechargement.nl
 // @grant        none
 // ==/UserScript==

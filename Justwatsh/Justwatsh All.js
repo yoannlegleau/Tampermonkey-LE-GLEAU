@@ -9,7 +9,13 @@
 // @grant        none
 // ==/UserScript==
 
-const ztDomain = 'tokyo';
+// Domaines
+
+const ztDomain = 'monster';
+const torrent9Domain = 'ing';
+
+const ztIcon = `https://www.zone-telechargement.${ztDomain}/favicon.ico`;
+const torrent9Icon = `https://asamsa.fr/templates/cz/images/favicon.ico`;
 
 const trueSeries = [
     "Les Simpson",
@@ -33,8 +39,7 @@ const trueSeries = [
  * @param episode numéro de l'épisode
  * @returns {string} URL de recherche
  */
-function createLink(fileName, sType, year = 0, saison = 0, episode = 0) {
-    //TODO mettre en place l'autoclick
+function createLinkZT(fileName, sType, year = 0, saison = 0, episode = 0) {
     let url = `https://www.zone-telechargement.${ztDomain}/?`;
     fileName = fileName.replace('\'' , ' ')
         .replace('’' , ' ')
@@ -51,6 +56,29 @@ function createLink(fileName, sType, year = 0, saison = 0, episode = 0) {
     if (episode){
         url += `&episode=${episode}`;}
     url += '&autoClick=true';
+    return url;
+}
+
+/**
+ * Créer un lien vers le 9Torent
+ * @param fileName Nom du fichier
+ * @param sType Type de recherche (films, series, mangas)
+ * @param year Année de sortie
+ * @param saison numeéro de la saison
+ * @param episode numéro de l'épisode
+ * @returns {string} URL de recherche
+ */
+function createLink9T(fileName, sType, year = 0, saison = 0, episode = 0) {
+    // https://www.torrent9.ing/recherche/Slow%20Horses%20S04E01
+    // https://www.torrent9.ing/recherche/Slow+Horses+S04E01
+    let url = `https://www.torrent9.${torrent9Domain}/recherche/`;
+    url += `${fileName.replace('&','et')}`;
+
+    //saion et episode sous la forme S04E01 (avec le formatage de 2 chiffres)
+    if (saison){
+        url += ` S${saison.toString().padStart(2, '0')}`;}
+    if (episode){
+        url += `E${episode.toString().padStart(2, '0')}`;}
     return url;
 }
 
@@ -79,13 +107,23 @@ function filmPage() {
 
                 // Créer un lien
                 const link = document.createElement('a');
-                link.href = createLink(fileName, 'films', fileYear); // Remplacer avec l'URL souhaitée
+                link.href = createLinkZT(fileName, 'films', fileYear); // Remplacer avec l'URL souhaitée
                 link.target = '_blank'; // Ouvrir le lien dans un nouvel onglet
                 link.classList.add('zt_tutton');
-                link.appendChild(ceatCardButton());
+                link.appendChild(ceatCardButton(ztIcon, 'Direct Download'));
 
                 // Insérer le lien après la div "title-card-basic__rating"
                 ratingDiv.parentNode.insertBefore(link, ratingDiv.nextSibling);
+
+                // créer un lien vers le site 9Torrent
+                const link9T = document.createElement('a');
+                link9T.href = createLink9T(fileName, 'films', fileYear); // Remplacer avec l'URL souhaitée
+                link9T.target = '_blank'; // Ouvrir le lien dans un nouvel onglet
+                link9T.classList.add('t_tutton');
+                link9T.appendChild(ceatCardButton(torrent9Icon, 'Torrent Download'));
+                // Insérer le lien après la div "title-card-basic__rating"
+                ratingDiv.parentNode.insertBefore(link9T, ratingDiv.nextSibling);
+
             }
         }
     });
@@ -121,7 +159,7 @@ function seriePage() {
                 episode = seasonInfo[2];
             }
 
-            // Créer un lien
+            // Créer un lien vers le site Zone Téléchargement
             const link = document.createElement('a');
 
             let defaultType = 'mangas';
@@ -129,10 +167,10 @@ function seriePage() {
                 defaultType = 'series';
             }
 
-            link.href = createLink(fileName, defaultType, 0, season, episode); // Remplacer avec l'URL souhaitée
+            link.href = createLinkZT(fileName, defaultType, 0, season, episode); // Remplacer avec l'URL souhaitée
             link.target = '_blank'; // Ouvrir le lien dans un nouvel onglet
             link.classList.add('zt_tutton');
-            link.appendChild(ceatCardButton());
+            link.appendChild(ceatCardButton(ztIcon, 'Direct Download'));
 
             const oldlink = titleCard.querySelector('.zt_tutton');
             if (oldlink) {
@@ -149,18 +187,47 @@ function seriePage() {
                 console.log("Ajout du bouton");
                 ratingDiv.parentNode.insertBefore(link, ratingDiv.nextSibling);
             }
+
+            // créer un lien vers le site 9Torrent
+            const link9T = document.createElement('a');
+
+            let defaultType9T = 'mangas';
+            if (trueSeries.includes(fileName)) {
+                defaultType9T = 'series';
+            }
+
+            link9T.href = createLink9T(fileName, defaultType9T, 0, season, episode); // Remplacer avec l'URL souhaitée
+            link9T.target = '_blank'; // Ouvrir le lien dans un nouvel onglet
+            link9T.classList.add('t_tutton');
+            link9T.appendChild(ceatCardButton(torrent9Icon, 'Torrent Download'));
+
+            const oldlink9T = titleCard.querySelector('.t_tutton');
+            if (oldlink9T) {
+                // Vérifier si le lien est différent
+                if (titleCard.querySelector('.t_tutton').href !== link9T.href) {
+                    console.warn("Lien différent\n"+oldlink9T.href + "\n" + link9T.href);
+                    // Supprimer le bouton existant
+                    oldlink9T.remove();
+                    // Ajouter le bouton
+                    ratingDiv.parentNode.insertBefore(link9T, ratingDiv.nextSibling);
+                }
+            } else {
+                // Insérer le lien après la div "title-card-basic__rating"
+                console.log("Ajout du bouton");
+                ratingDiv.parentNode.insertBefore(link9T, ratingDiv.nextSibling);
+            }
         }
     });
 }
 
-function ceatCardButton() {
+function ceatCardButton(icon , text) {
     // Créer un bouton
     const button = document.createElement('button');
     button.classList.add('basic-button', 'secondary', 'md', 'w-full', 'rounded'); // Ajouter les classes au bouton
 
     // Créer une image pour l'icône du site
     const iconImg = document.createElement('img');
-    iconImg.src = `https://www.zone-telechargement.${ztDomain}/favicon.ico`;
+    iconImg.src = icon;
     iconImg.alt = '';
     iconImg.style.verticalAlign = 'middle';
     iconImg.style.marginRight = '4px';
@@ -169,7 +236,7 @@ function ceatCardButton() {
 
     // Ajouter l'icône et le texte du bouton
     button.appendChild(iconImg);
-    button.appendChild(document.createTextNode('Télécharger'));
+    button.appendChild(document.createTextNode(text));
     return button;
 }
 
@@ -214,9 +281,10 @@ function contentPage() {
     console.log("Nom du fichier : " + fileName + "\n\tType de recherche : " + sType + "\n\tAnnée de sortie : " + fileYear + "\n\tSaison : " + fileSaisonStr);
 
     // Ajouter l'icône et le texte du bouton
-    let button = ceatCardButton();
-    let btntitle = " " + fileName;
+    let button = ceatCardButton(ztIcon, 'Direct Download');
+    let btntitle = ": " + fileName ;
     button.appendChild(document.createTextNode(btntitle + fileSaisonStr));
+    button.style.marginTop = '10px';
 
     let saison = 0;
     const regexRom = /\b([IVXLCDM]+)\b/g;
@@ -241,10 +309,20 @@ function contentPage() {
 
     // Créer un lien
     let link = document.createElement('a');
-    link.href = createLink(fileName, sType, fileYear, saison); // Remplacer avec l'URL souhaitée
+    link.href = createLinkZT(fileName, sType, fileYear, saison); // Remplacer avec l'URL souhaitée
     link.target = '_blank'; // Ouvrir le lien dans un nouvel onglet
     link.classList.add('zt_tutton');
     link.appendChild(button);
+
+    // Créer un lien vers le site 9Torrent
+    let link9T = document.createElement('a');
+    link9T.href = createLink9T(fileName, sType, fileYear, saison); // Remplacer avec l'URL souhaitée
+    link9T.target = '_blank'; // Ouvrir le lien dans un nouvel onglet
+    link9T.classList.add('t_tutton');
+    let button9T = ceatCardButton(torrent9Icon, 'Torrent Download');
+    button9T.appendChild(document.createTextNode(btntitle + fileSaisonStr));
+    link9T.appendChild(button9T);
+
 
     // Trouver l'élément sous lequel nous allons insérer le bouton
     const insertionPoint = document.querySelector('.buybox__heading');
@@ -264,6 +342,16 @@ function contentPage() {
         insertionPoint.parentNode.insertBefore(link, insertionPoint.nextSibling);
     }
 
+    //verifier si le bouton existe et que le lien est difeérent
+    const linkExist9T = document.querySelector('.t_tutton');
+    if (linkExist9T && linkExist9T.href !== link9T.href) {
+        // Supprimer le bouton existant
+        //linkExist9T.remove();
+        //ajouter le nouveau bouton
+        //insertionPoint.parentNode.insertBefore(link9T, insertionPoint.nextSibling);
+    } else if (!linkExist9T) {
+        insertionPoint.parentNode.insertBefore(link9T, insertionPoint.nextSibling);
+    }
 }
 
 /**
